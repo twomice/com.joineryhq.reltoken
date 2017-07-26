@@ -116,6 +116,7 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
     // BAO is more future-proof than SQL, but it probably isn't.
     $bao = new CRM_Contact_BAO_Relationship();
     $contactIDsSQLIn = implode(',', $contactIDs);
+    $bao->whereAdd("is_active");
     $bao->whereAdd("relationship_type_id = '$relationshipTypeID'");
     $bao->whereAdd("(contact_id_a IN ($contactIDsSQLIn) OR contact_id_b IN ($contactIDsSQLIn))");
     $bao->orderBy('id DESC');
@@ -139,9 +140,13 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
     foreach ($contactIDs as $contactID) {
       $result = civicrm_api3('relationship', 'get', array(
         'sequential' => 1,
+        'is_active' => 1,
         'relationship_type_id' => $relationshipTypeID,
         'contact_id_' . $direction => $contactID,
-        'options' => array('sort' => "id DESC", 'limit' => 1),
+        'options' => array(
+          'sort' => "id DESC", 
+          'limit' => 1
+        ),
       ));
       if (!empty($result['values'][0])) {
         $relatedContactIDs[$contactID] = $result['values'][0]['contact_id_'. $otherDirection];
