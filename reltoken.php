@@ -82,9 +82,9 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
         
         $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
 //        dsm($baseToken, '$baseToken');
-        dsm($relatedContactIDs, "\$relatedContactIDs for $token");
+//        dsm($relatedContactIDs, "\$relatedContactIDs for $token");
         $tokenDetails = CRM_Utils_Token::getTokenDetails($relatedContactIDs, array($baseToken => 1), FALSE, FALSE, NULL, array('contact' => array($baseToken)));
-        dsm($tokenDetails, "\$tokenDetails for token $token");
+//        dsm($tokenDetails, "\$tokenDetails for token $token");
 //        dsm($tokenDetails, "\$tokenDetails for $baseToken ($token) in ". __FUNCTION__);
         foreach ($contactIDs as $contactID) {
           $tokenValues = $tokenDetails[0][$relatedContactIDsPerContact[$contactID]];
@@ -94,19 +94,19 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
       }
     }
   }
-  dsm($values, '$values at end of '. __FUNCTION__);
+//  dsm($values, '$values at end of '. __FUNCTION__);
 }
 
 function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
   $relatedContactIDs = array();
-  dsm(func_get_args(), __FUNCTION__);
+//  dsm(func_get_args(), __FUNCTION__);
   // Example: first_name___reltype_b_Benefits_Specialist_is_Benefits_Specialist
   list($junk, $relationshipTypeHash) = explode('___reltype_', $token, 2);
-  dsm($relationshipTypeHash, '$relationshipTypeBase');
+//  dsm($relationshipTypeHash, '$relationshipTypeBase');
   // b_Benefits_Specialist_is_Benefits_Specialist
   $direction = substr($relationshipTypeHash, 0, 1);
   $otherDirection = ($direction == 'a' ? 'b' : 'a');
-  dsm ($direction, 'direction');
+//  dsm ($direction, 'direction');
   
   $hashedRelationshipTypes = _reltoken_get_hashed_relationship_types();
   $relationshipTypeID = $hashedRelationshipTypes[$relationshipTypeHash]['relationship_type_id'];
@@ -148,7 +148,7 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
       }
     } 
   }
-  dsm($relatedContactIDs, "returning \$relatedContactIDs for $token in ". __FUNCTION__);
+//  dsm($relatedContactIDs, "returning \$relatedContactIDs for $token in ". __FUNCTION__);
   return $relatedContactIDs;
 }
 
