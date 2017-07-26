@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<extension key="com.joineryhq.reltoken" type="module">
+  <file>reltoken</file>
+  <name>Related Tokens</name>
+  <description>Provides tokens for any related contact, for all available contact tokens. E.g., to get the spouse's first name, or parent's marriage date.</description>
+  <license>GPL-3.0</license>
+  <maintainer>
+    <author>Allen Shaw</author>
+    <email>allen@JoineryHQ.com</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">http://github.com/twomice/com.joineryhq.reltoken</url>
+    <url desc="Documentation">http://github.com/twomice/com.joineryhq.reltoken</url>
+    <url desc="Support">http://github.com/twomice/com.joineryhq.reltoken/issues</url>
+    <url desc="Licensing">http://www.gnu.org/licenses/gpl-3.0.html</url>
+  </urls>
+  <releaseDate>2017-07-25</releaseDate>
+  <version>0.1</version>
+  <develStage>dev</develStage>
+  <compatibility>
+    <ver>4.7</ver>
+  </compatibility>
+  <comments></comments>
+  <civix>
+    <namespace>CRM/Reltoken</namespace>
+  </civix>
+</extension>
