@@ -26,6 +26,9 @@ provide the following values:
 relationship with the highest internal ID (typically the one most recently
 created) is used.
 
+## Similar extensions
+Whereas "Related Tokens" adds _all available tokens_ -- including all custom fields and other fields, as explained above -- for each relationship type, the ["CiviToken" extension](https://github.com/eileenmcnaughton/nz.co.fuzion.civitoken) adds only 6 tokens (Display Name, First Name, Last Name, Phone, Email, Contact ID) for each relationship type, along with a variety of other customized tokens not derived from relationships.
+
 ## Tech details
 1. Token strings are built from the values of `civicrm_relationship_type.name_a_b`
 and `civicrm_relationship_type.name_b_a`. These values are normally fairly stable,
