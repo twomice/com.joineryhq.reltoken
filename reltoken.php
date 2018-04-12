@@ -75,6 +75,11 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
       if (strpos($token, '___reltype_')) {
         $relatedContactIDsPerContact = _reltoken_get_related_contact_ids_per_contact($contactIDs, $token);
         $relatedContactIDs = array_unique(array_values($relatedContactIDsPerContact));
+
+        if (count($relatedContactIDs) === 0) {
+          continue;
+        }
+
         /*
          * 1 => 2
          * 3 => 2
