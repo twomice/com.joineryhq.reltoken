@@ -6,19 +6,31 @@ require_once 'reltoken.civix.php';
  * implementation of CiviCRM hook
  */
 function reltoken_civicrm_tokens(&$tokens) {
+  // Get a list of the standard contact tokens.
+  // Note that CRM_Core_SelectValues::contactTokens() will invoke this hook again.
   $contactTokens = CRM_Core_SelectValues::contactTokens();
   $hashedRelationshipTypes = _reltoken_get_hashed_relationship_types();
-  
+
+  // For each standard contact token, create a corresponding token for each
+  // hashedRelationshipType.  If you have 80 standard tokens, 10 symmetrical
+  // relationships and 25 asymmetrical relationships,  This will create
+  // 80 * ((25 * 2) + 10), or 4800 tokens.
   foreach ($hashedRelationshipTypes as $hash => $relationshipTypeDetails) {
     foreach ($contactTokens as $token => $label) {
-      $tokenBase = preg_replace('/^\{contact\.(\w+)\}$/', '$1', $token);
-      // Must be in the form: $tokens['X']["X.whatever"] where X is not "contact".
-      $tokens['related']["related.{$tokenBase}___reltype_{$hash}"] = "Related ({$relationshipTypeDetails['directionLabel']})::{$label}";
+      if (strpos($token, '{contact') !== FALSE) {
+        $tokenBase = preg_replace('/^\{contact\.(\w+)\}$/', '$1', $token);
+        // Must be in the form: $tokens['X']["X.whatever"] where X is not "contact".
+        $tokens['related']["related.{$tokenBase}___reltype_{$hash}"] = "Related ({$relationshipTypeDetails['directionLabel']})::{$label}";
+      }
     }
   }
 }
 
-// FIXME: add docblock and comments.
+/*
+ * Returns an array with one element for symmetrical relationships and two
+ * elements for assymmetrical relationships.
+ */
+
 function _reltoken_get_hashed_relationship_types() {
   static $hashedRelationshipTypes;
   if (!isset($hashedRelationshipTypes)) {
