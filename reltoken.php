@@ -26,17 +26,23 @@ function reltoken_civicrm_tokens(&$tokens) {
   }
 }
 
-/*
+/**
  * Returns an array with one element for symmetrical relationships and two
  * elements for assymmetrical relationships.
  */
-
 function _reltoken_get_hashed_relationship_types() {
   static $hashedRelationshipTypes;
   if (!isset($hashedRelationshipTypes)) {
     $hashedRelationshipTypes = array();
+    // Get the custom field ID of the field that specifies generating tokens.
+    $tokenCustomFieldId = civicrm_api3('CustomField', 'getvalue', [
+      'name' => 'display_reltokens',
+      'return' => 'id',
+    ]);
+
     $result = civicrm_api3('relationshipType', 'get', array(
       'is_active' => 1,
+      'custom_' . $tokenCustomFieldId => 1,
       'options' => array(
         'limit' => 0,
       ),
@@ -61,7 +67,7 @@ function _reltoken_get_hashed_relationship_types() {
         //'b_Benefits_Specialist_is_Benefits_Specialist' => 'Benefits Specialist',
         $hashedRelationshipTypes["{$direction}_{$key}"] = array(
           'directionLabel' => $directionLabel,
-          'relationship_type_id' => $value['id'],      
+          'relationship_type_id' => $value['id'],
         );
       }
     }
