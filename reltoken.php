@@ -101,7 +101,7 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
         $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
 //        dsm($baseToken, '$baseToken');
 //        dsm($relatedContactIDs, "\$relatedContactIDs for $token");
-        $tokenDetails = CRM_Utils_Token::getTokenDetails($relatedContactIDs, array($baseToken => 1), FALSE, FALSE, NULL, array('contact' => array($baseToken)));
+        $tokenDetails = CRM_Utils_Token::getTokenDetails($relatedContactIDs, array($baseToken => 1), FALSE, FALSE, NULL, array('contact' => array($baseToken)), 'CRM_Reltoken');
 //        dsm($tokenDetails, "\$tokenDetails for token $token");
 //        dsm($tokenDetails, "\$tokenDetails for $baseToken ($token) in ". __FUNCTION__);
         foreach ($contactIDs as $contactID) {
