@@ -39,7 +39,7 @@ class CRM_Reltoken_Upgrader extends CRM_Reltoken_Upgrader_Base {
         'name' => 'display_reltokens',
         'label' => E::ts('Generate tokens for this relationship'),
         'data_type' => 'Boolean',
-        'default_value' => 0,
+        'default_value' => 1,
         'html_type' => 'Radio',
         'required' => 1,
       ]);
