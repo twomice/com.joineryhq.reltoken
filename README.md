@@ -2,9 +2,16 @@
 
 Provides tokens for any related contact, for all available contact tokens. E.g., to get the spouse's first name, or parent's marriage date.
 
+## Configuration
+
+Upon installation, this extension will create a custom field on each relationship type (see screenshot):
+![Screenshot](/images/reltoken_custom_field.png)
+
+Set *Generate tokens for this relationship* to **Yes** for each relationship you'd like tokens for.
+
 ## Usage
 
-* Once installed, this extension will add to CiviCRM's </tokens> list one token
+* This extension will add to CiviCRM's </tokens> list one token
 for each existing contact token, for each enabled relationship type. For example,
 on a site with relationship types "Spouse" and "Parent / Child", additional
 "First Name" tokens will be added, like so:
@@ -46,8 +53,5 @@ highest internal ID (typically the one most recently created), but it could be
 more desirable in various situations to use the one with the newest start date,
 or to concatenate them all into a comma-separated string, or any number of other
 things.
-2. This extension can add several hundred tokens to the list (Total Number of
-Enabled Relationship x (1 or 2) x Total Number of Contact Tokens). It might help
-support a configurable list of supported relationship types and/or contact tokens.
 3. Perhaps there are other tokens that should be supported as well; suggestions
 are welcome.

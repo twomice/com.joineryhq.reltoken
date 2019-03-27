@@ -14,11 +14,11 @@
     <url desc="Support">http://github.com/twomice/com.joineryhq.reltoken/issues</url>
     <url desc="Licensing">http://www.gnu.org/licenses/gpl-3.0.html</url>
   </urls>
-  <releaseDate>2017-07-25</releaseDate>
-  <version>0.1</version>
-  <develStage>dev</develStage>
+  <releaseDate>2018-11-15</releaseDate>
+  <version>0.2</version>
+  <develStage>beta</develStage>
   <compatibility>
-    <ver>4.7</ver>
+    <ver>5.0</ver>
   </compatibility>
   <comments></comments>
   <civix>
