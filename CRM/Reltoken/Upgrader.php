@@ -37,7 +37,7 @@ class CRM_Reltoken_Upgrader extends CRM_Reltoken_Upgrader_Base {
       $customField = civicrm_api3('CustomField', 'create', [
         'custom_group_id' => $customGroups['id'],
         'name' => 'display_reltokens',
-        'label' => E::ts('Generate tokens for this relationship'),
+        'label' => E::ts('Generate tokens for this relationship type'),
         'data_type' => 'Boolean',
         'default_value' => 1,
         'html_type' => 'Radio',
