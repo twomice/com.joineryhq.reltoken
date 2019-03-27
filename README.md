@@ -4,10 +4,10 @@ Provides tokens for any related contact, for all available contact tokens. E.g.,
 
 ## Configuration
 
-Upon installation, this extension will create a custom field on each relationship type (see screenshot):
+Upon installation, this extension will create a custom field, *Generate tokens for this relationship type*, on each relationship type (see screenshot):
 ![Screenshot](/images/reltoken_custom_field.png)
 
-Set *Generate tokens for this relationship* to **Yes** for each relationship you'd like tokens for.
+This field defaults to **Yes**; set this field to **No** on any relationship types for which you don't want this extension to provide tokens.
 
 ## Usage
 
