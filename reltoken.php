@@ -100,7 +100,7 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
         // If you're using a token for a relationship this person doesn't have, just skip it
         // Otherwise you create a query that crushes the system.
         if (!$relatedContactIDs) {
-          break;
+          continue;
         }
         $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
 //        dsm($baseToken, '$baseToken');
