@@ -131,6 +131,8 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
  * This method reformats $messageTokens if it detects that the token names are
  * passed as values.
  *
+ * Original code by xurizaemon: https://github.com/xurizaemon/civicrm-core/commit/90539237365ec9ebf36b703116108d50ac79135c
+ *
  * @param array $messageTokens Per TokenProcessor format
  *  [ 'contact' => [ 'checksum', 'contact_id' ] ]
  * @return array Per hook format
