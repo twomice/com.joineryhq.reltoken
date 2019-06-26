@@ -88,7 +88,9 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
 //  dsm(debug_backtrace(), 'bt in '. __FUNCTION__);
 //  dsm(func_get_args(), __FUNCTION__);
   if (!empty($tokens['related'])) {
-    foreach ($tokens['related'] as $token) {
+    // Quickmail formats tokens incorrectly - see CRM-19758.
+    $tokens = formatMessageTokens($tokens);
+    foreach ($tokens['related'] as $token => $v) {
 //      dsm($token, '$token');
       if (strpos($token, '___reltype_')) {
         $relatedContactIDsPerContact = _reltoken_get_related_contact_ids_per_contact($contactIDs, $token);
@@ -117,6 +119,42 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
     }
   }
 //  dsm($values, '$values at end of '. __FUNCTION__);
+}
+
+ /**
+ * Reformat $messageTokens if token names are values.
+ *
+ * Some components (namely CRM_Activity_BAO_Activity) pass in $messageTokens in
+ * TokenProcessor format (token name is value), while others pass in hook
+ * format (token name is key).
+ *
+ * This method reformats $messageTokens if it detects that the token names are
+ * passed as values.
+ *
+ * Original code by xurizaemon: https://github.com/xurizaemon/civicrm-core/commit/90539237365ec9ebf36b703116108d50ac79135c
+ *
+ * @param array $messageTokens Per TokenProcessor format
+ *  [ 'contact' => [ 'checksum', 'contact_id' ] ]
+ * @return array Per hook format
+ *  [ 'contact' => [ 'first_name' => 1, 'email_greeting' => 1 ] ] ]
+ */
+ function formatMessageTokens($messageTokens) {
+  $result = [];
+  // Don't reformat if any entity.token has token names as keys.
+  foreach ($messageTokens as $entity => $names) {
+    foreach ($names as $k => $v) {
+      if (!is_integer($k)) {
+        return $messageTokens;
+      }
+    }
+  }
+  // All entity.token names are as values here, so reformat.
+  foreach ($messageTokens as $entity => $names) {
+    foreach ($names as $name) {
+      $result[$entity][$name] = 1;
+    }
+  }
+  return $result;
 }
 
 function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
