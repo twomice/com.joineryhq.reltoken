@@ -84,14 +84,14 @@ function _reltoken_get_hashed_relationship_types() {
  * @param array $tokens
  * @param null $context
  */
-function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $tokens = array(), $context = null) {
-//  dsm(debug_backtrace(), 'bt in '. __FUNCTION__);
-//  dsm(func_get_args(), __FUNCTION__);
+function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = NULL, $tokens = array(), $context = NULL) {
+  //  dsm(debug_backtrace(), 'bt in '. __FUNCTION__);
+  //  dsm(func_get_args(), __FUNCTION__);
   if (!empty($tokens['related'])) {
     // Quickmail formats tokens incorrectly - see CRM-19758.
     $tokens = formatMessageTokens($tokens);
     foreach ($tokens['related'] as $token => $v) {
-//      dsm($token, '$token');
+      //      dsm($token, '$token');
       if (strpos($token, '___reltype_')) {
         $relatedContactIDsPerContact = _reltoken_get_related_contact_ids_per_contact($contactIDs, $token);
         $relatedContactIDs = array_unique(array_values($relatedContactIDsPerContact));
@@ -105,23 +105,23 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
           continue;
         }
         $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
-//        dsm($baseToken, '$baseToken');
-//        dsm($relatedContactIDs, "\$relatedContactIDs for $token");
+        //        dsm($baseToken, '$baseToken');
+        //        dsm($relatedContactIDs, "\$relatedContactIDs for $token");
         $tokenDetails = CRM_Utils_Token::getTokenDetails($relatedContactIDs, array($baseToken => 1), FALSE, FALSE, NULL, array('contact' => array($baseToken)), 'CRM_Reltoken');
-//        dsm($tokenDetails, "\$tokenDetails for token $token");
-//        dsm($tokenDetails, "\$tokenDetails for $baseToken ($token) in ". __FUNCTION__);
+        //        dsm($tokenDetails, "\$tokenDetails for token $token");
+        //        dsm($tokenDetails, "\$tokenDetails for $baseToken ($token) in ". __FUNCTION__);
         foreach ($contactIDs as $contactID) {
           $tokenValues = $tokenDetails[0][$relatedContactIDsPerContact[$contactID]];
           $values[$contactID]['related.' . $token] = $tokenValues[$baseToken];
         }
-        
+
       }
     }
   }
-//  dsm($values, '$values at end of '. __FUNCTION__);
+  //  dsm($values, '$values at end of '. __FUNCTION__);
 }
 
- /**
+/**
  * Reformat $messageTokens if token names are values.
  *
  * Some components (namely CRM_Activity_BAO_Activity) pass in $messageTokens in
@@ -133,17 +133,13 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
  *
  * Original code by xurizaemon: https://github.com/xurizaemon/civicrm-core/commit/90539237365ec9ebf36b703116108d50ac79135c
  *
- * @param array $messageTokens Per TokenProcessor format
- *  [ 'contact' => [ 'checksum', 'contact_id' ] ]
- * @return array Per hook format
- *  [ 'contact' => [ 'first_name' => 1, 'email_greeting' => 1 ] ] ]
  */
- function formatMessageTokens($messageTokens) {
+function formatMessageTokens($messageTokens) {
   $result = [];
   // Don't reformat if any entity.token has token names as keys.
   foreach ($messageTokens as $entity => $names) {
     foreach ($names as $k => $v) {
-      if (!is_integer($k)) {
+      if (!is_int($k)) {
         return $messageTokens;
       }
     }
@@ -159,18 +155,18 @@ function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = null, $token
 
 function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
   $relatedContactIDs = array();
-//  dsm(func_get_args(), __FUNCTION__);
+  //  dsm(func_get_args(), __FUNCTION__);
   // Example: first_name___reltype_b_Benefits_Specialist_is_Benefits_Specialist
   list($junk, $relationshipTypeHash) = explode('___reltype_', $token, 2);
-//  dsm($relationshipTypeHash, '$relationshipTypeBase');
+  //  dsm($relationshipTypeHash, '$relationshipTypeBase');
   // b_Benefits_Specialist_is_Benefits_Specialist
   $direction = substr($relationshipTypeHash, 0, 1);
   $otherDirection = ($direction == 'a' ? 'b' : 'a');
-//  dsm ($direction, 'direction');
-  
+  //  dsm ($direction, 'direction');
+
   $hashedRelationshipTypes = _reltoken_get_hashed_relationship_types();
   $relationshipTypeID = $hashedRelationshipTypes[$relationshipTypeHash]['relationship_type_id'];
-  
+
   if ($direction == '0') {
     // Bidirectional relationships are tricky. Sorry, no API call here. Assuming
     // BAO is more future-proof than SQL, but it probably isn't.
@@ -180,15 +176,15 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
     $bao->whereAdd("relationship_type_id = '$relationshipTypeID'");
     $bao->whereAdd("(contact_id_a IN ($contactIDsSQLIn) OR contact_id_b IN ($contactIDsSQLIn))");
     $bao->orderBy('id DESC');
-    
+
     /**
      * 3: 12 - 24
      * 2: 24 - 36
      * 1: 36 - 12
      */
-    
+
     $bao->find();
-    while($bao->fetch()) {
+    while ($bao->fetch()) {
       if (in_array($bao->contact_id_a, $contactIDs) && empty($relatedContactIDs[$bao->contact_id_a])) {
         $relatedContactIDs[$bao->contact_id_a] = $bao->contact_id_b;
       }
@@ -196,7 +192,8 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
         $relatedContactIDs[$bao->contact_id_b] = $bao->contact_id_a;
       }
     }
-  } else {
+  }
+  else {
     foreach ($contactIDs as $contactID) {
       $result = civicrm_api3('relationship', 'get', array(
         'sequential' => 1,
@@ -204,16 +201,16 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
         'relationship_type_id' => $relationshipTypeID,
         'contact_id_' . $direction => $contactID,
         'options' => array(
-          'sort' => "id DESC", 
-          'limit' => 1
+          'sort' => "id DESC",
+          'limit' => 1,
         ),
       ));
       if (!empty($result['values'][0])) {
-        $relatedContactIDs[$contactID] = $result['values'][0]['contact_id_'. $otherDirection];
+        $relatedContactIDs[$contactID] = $result['values'][0]['contact_id_' . $otherDirection];
       }
-    } 
+    }
   }
-//  dsm($relatedContactIDs, "returning \$relatedContactIDs for $token in ". __FUNCTION__);
+  //  dsm($relatedContactIDs, "returning \$relatedContactIDs for $token in ". __FUNCTION__);
   return $relatedContactIDs;
 }
 
@@ -343,24 +340,24 @@ function reltoken_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  * Implements hook_civicrm_preProcess().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function reltoken_civicrm_preProcess($formName, &$form) {
+ */
+// function reltoken_civicrm_preProcess($formName, &$form) {
 
-} // */
+// } // */
 
 /**
  * Implements hook_civicrm_navigationMenu().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function reltoken_civicrm_navigationMenu(&$menu) {
-  _reltoken_civix_insert_navigation_menu($menu, NULL, array(
-    'label' => ts('The Page', array('domain' => 'com.joineryhq.reltoken')),
-    'name' => 'the_page',
-    'url' => 'civicrm/the-page',
-    'permission' => 'access CiviReport,access CiviContribute',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _reltoken_civix_navigationMenu($menu);
-} // */
+ */
+// function reltoken_civicrm_navigationMenu(&$menu) {
+//   _reltoken_civix_insert_navigation_menu($menu, NULL, array(
+//     'label' => ts('The Page', array('domain' => 'com.joineryhq.reltoken')),
+//     'name' => 'the_page',
+//     'url' => 'civicrm/the-page',
+//     'permission' => 'access CiviReport,access CiviContribute',
+//     'operator' => 'OR',
+//     'separator' => 0,
+//   ));
+//   _reltoken_civix_navigationMenu($menu);
+// } // */
