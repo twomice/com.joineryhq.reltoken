@@ -7,9 +7,9 @@
  * extension.
  */
 class CRM_Reltoken_ExtensionUtil {
-  const SHORT_NAME = 'reltoken';
-  const LONG_NAME = 'com.joineryhq.reltoken';
-  const CLASS_PREFIX = 'CRM_Reltoken';
+  const SHORT_NAME = "reltoken";
+  const LONG_NAME = "com.joineryhq.reltoken";
+  const CLASS_PREFIX = "CRM_Reltoken";
 
   /**
    * Translate a string using the extension's domain.
