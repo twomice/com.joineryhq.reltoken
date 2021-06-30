@@ -258,8 +258,6 @@ function reltoken_civicrm_postInstall() {
     'sequential' => 1,
     'is_active' => 1,
     'api.RelationshipType.create' => [
-      'name_a_b' => '$value.name_a_b',
-      'name_b_a' => '$value.name_b_a',
       'id' => '$value.id',
       "custom_{$tokenCustomFieldId}" => 1,
     ],
