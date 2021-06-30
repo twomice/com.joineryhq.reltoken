@@ -247,6 +247,22 @@ function reltoken_civicrm_install() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
  */
 function reltoken_civicrm_postInstall() {
+  // Get the custom field ID of the field that specifies generating tokens.
+  $tokenCustomFieldId = civicrm_api3('CustomField', 'getvalue', [
+    'name' => 'display_reltokens',
+    'return' => 'id',
+  ]);
+
+  // add generating tokens in RelationshipType
+  $result = civicrm_api3('RelationshipType', 'get', [
+    'sequential' => 1,
+    'is_active' => 1,
+    'api.RelationshipType.create' => [
+      'id' => '$value.id',
+      "custom_{$tokenCustomFieldId}" => 1,
+    ],
+  ]);
+
   _reltoken_civix_civicrm_postInstall();
 }
 
