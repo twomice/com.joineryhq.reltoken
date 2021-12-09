@@ -6,9 +6,14 @@ require_once 'reltoken.civix.php';
  * implementation of CiviCRM hook
  */
 function reltoken_civicrm_tokens(&$tokens) {
+  static $calledOnce = FALSE;
   // Get a list of the standard contact tokens.
   // Note that CRM_Core_SelectValues::contactTokens() will invoke this hook again.
-  $contactTokens = CRM_Core_SelectValues::contactTokens();
+  $contactTokens = [];
+  if (!$calledOnce) {
+    $calledOnce = TRUE;
+    $contactTokens = CRM_Core_SelectValues::contactTokens();
+  }
   $hashedRelationshipTypes = _reltoken_get_hashed_relationship_types();
 
   // For each standard contact token, create a corresponding token for each
