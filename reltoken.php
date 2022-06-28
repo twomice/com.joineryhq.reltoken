@@ -2,10 +2,19 @@
 
 require_once 'reltoken.civix.php';
 
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+
 /**
- * implementation of CiviCRM hook
+ * Add token services to the container.
+ *
+ * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
  */
-function reltoken_civicrm_tokens(&$tokens) {
+function reltoken_civicrm_container(ContainerBuilder $container) {
+  $container->findDefinition('dispatcher')->addMethodCall('addListener', ['civi.token.list', 'reltoken_register_tokens'])->setPublic(TRUE);
+  $container->findDefinition('dispatcher')->addMethodCall('addListener', ['civi.token.eval', 'reltoken_evaluate_tokens'])->setPublic(TRUE);
+}
+
+function reltoken_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
   static $calledOnce = FALSE;
   // Get a list of the standard contact tokens.
   // Note that CRM_Core_SelectValues::contactTokens() will invoke this hook again.
@@ -25,7 +34,55 @@ function reltoken_civicrm_tokens(&$tokens) {
       if (strpos($token, '{contact') !== FALSE) {
         $tokenBase = preg_replace('/^\{contact\.(\w+)\}$/', '$1', $token);
         // Must be in the form: $tokens['X']["X.whatever"] where X is not "contact".
-        $tokens['related']["related.{$tokenBase}___reltype_{$hash}"] = "Related ({$relationshipTypeDetails['directionLabel']})::{$label}";
+        $e->entity('related')->register("{$tokenBase}___reltype_{$hash}", "Related ({$relationshipTypeDetails['directionLabel']})::{$label}");
+      }
+    }
+  }
+}
+
+function reltoken_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
+  $tokens = $e->getTokenProcessor()->getMessageTokens();
+  $contactIDs = $e->getTokenProcessor()->getContextValues('contactId');
+  if (!empty($tokens['related'])) {
+    foreach ($tokens['related'] as $token) {
+      if (strpos($token, '___reltype_')) {
+        $relatedContactIDsPerContact = _reltoken_get_related_contact_ids_per_contact($contactIDs, $token);
+        $relatedContactIDs = array_unique(array_values($relatedContactIDsPerContact));
+        // If you're using a token for a relationship this person doesn't have, just skip it
+        // Otherwise you create a query that crushes the system.
+        if (!$relatedContactIDs) {
+          continue;
+        }
+        $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
+        $useSmarty = (bool) (defined('CIVICRM_MAIL_SMARTY') && CIVICRM_MAIL_SMARTY);
+        $relatedTokenProcessor = new \Civi\Token\TokenProcessor(\Civi::dispatcher(), [
+          'controller' => __CLASS__,
+          'schema' => 'contactId',
+          'smarty' => $useSmarty,
+        ]);
+        $relatedTokenProcessor->addMessage($baseToken, '{contact.' . $baseToken . '}', 'text/plain');
+        foreach ($relatedContactIDs as $cid) {
+          $relatedTokenProcessor->addRow(['contactId' => $cid]);
+        }
+        $relatedTokenProcessor->evaluate();
+        // Get the contact IDs of both token processors, figure out which rows in the original token processor should get new values.
+        foreach ($relatedContactIDs as $rowId => $cid) {
+          $renderedToken[$cid] = $relatedTokenProcessor->getRow($rowId)->render($baseToken);
+        }
+
+        // Go through each of the original rows.  Check if this contact has a related contact matching this token.
+        // If so, render the reltoken and add it to the original row.
+        $relatedTokenProcessorCidToRowMap = array_flip($relatedTokenProcessor->getContextValues('contactId'));
+        $originalTokenProcessorContext = $e->getTokenProcessor()->getContextValues('contactId');
+        foreach ($e->getRows() as $originalRowKey => $row) {
+          $originalRowCid = $originalTokenProcessorContext[$originalRowKey];
+          $relatedContactId = $relatedContactIDsPerContact[$originalRowCid] ?? NULL;
+          if ($relatedContactId) {
+            $relatedProcessorRowId = $relatedTokenProcessorCidToRowMap[$relatedContactId];
+            $renderedToken = $relatedTokenProcessor->getRow($relatedProcessorRowId)->render($baseToken);
+            $row->tokens('related', $token, $renderedToken);
+          }
+        }
       }
     }
   }
@@ -78,52 +135,6 @@ function _reltoken_get_hashed_relationship_types() {
     }
   }
   return $hashedRelationshipTypes;
-}
-
-/**
- * implementation of CiviCRM hook
- *
- * @param array $values
- * @param $contactIDs
- * @param null $job
- * @param array $tokens
- * @param null $context
- */
-function reltoken_civicrm_tokenValues(&$values, $contactIDs, $job = NULL, $tokens = array(), $context = NULL) {
-  //  dsm(debug_backtrace(), 'bt in '. __FUNCTION__);
-  //  dsm(func_get_args(), __FUNCTION__);
-  if (!empty($tokens['related'])) {
-    // Quickmail formats tokens incorrectly - see CRM-19758.
-    $tokens = formatMessageTokens($tokens);
-    foreach ($tokens['related'] as $token => $v) {
-      //      dsm($token, '$token');
-      if (strpos($token, '___reltype_')) {
-        $relatedContactIDsPerContact = _reltoken_get_related_contact_ids_per_contact($contactIDs, $token);
-        $relatedContactIDs = array_unique(array_values($relatedContactIDsPerContact));
-        /*
-         * 1 => 2
-         * 3 => 2
-         */
-        // If you're using a token for a relationship this person doesn't have, just skip it
-        // Otherwise you create a query that crushes the system.
-        if (!$relatedContactIDs) {
-          continue;
-        }
-        $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
-        //        dsm($baseToken, '$baseToken');
-        //        dsm($relatedContactIDs, "\$relatedContactIDs for $token");
-        $tokenDetails = CRM_Utils_Token::getTokenDetails($relatedContactIDs, array($baseToken => 1), FALSE, FALSE, NULL, array('contact' => array($baseToken)), 'CRM_Reltoken');
-        //        dsm($tokenDetails, "\$tokenDetails for token $token");
-        //        dsm($tokenDetails, "\$tokenDetails for $baseToken ($token) in ". __FUNCTION__);
-        foreach ($contactIDs as $contactID) {
-          $tokenValues = $tokenDetails[0][$relatedContactIDsPerContact[$contactID]];
-          $values[$contactID]['related.' . $token] = $tokenValues[$baseToken];
-        }
-
-      }
-    }
-  }
-  //  dsm($values, '$values at end of '. __FUNCTION__);
 }
 
 /**
