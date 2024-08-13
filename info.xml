@@ -20,11 +20,17 @@
   <compatibility>
     <ver>5.43</ver>
   </compatibility>
-  <comments></comments>
+  <comments/>
   <civix>
     <namespace>CRM/Reltoken</namespace>
+    <format>23.02.1</format>
   </civix>
   <requires>
     <ext>org.civicrm.flexmailer</ext>
   </requires>
+  <classloader>
+    <psr0 prefix="CRM_" path="."/>
+    <psr4 prefix="Civi\" path="Civi"/>
+  </classloader>
+  <upgrader>CRM_Reltoken_Upgrader</upgrader>
 </extension>
