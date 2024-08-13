@@ -4,7 +4,7 @@ use CRM_Reltoken_ExtensionUtil as E;
 /**
  * Collection of upgrade steps.
  */
-class CRM_Reltoken_Upgrader extends CRM_Reltoken_Upgrader_Base {
+class CRM_Reltoken_Upgrader extends CRM_Extension_Upgrader_Base {
 
   private function addCustomData() {
     $optionValues = civicrm_api3('OptionValue', 'get', [
