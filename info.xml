@@ -18,12 +18,12 @@
   <version>0.4.0</version>
   <develStage>beta</develStage>
   <compatibility>
-    <ver>5.43</ver>
+    <ver>5.45</ver>
   </compatibility>
   <comments/>
   <civix>
     <namespace>CRM/Reltoken</namespace>
-    <format>23.02.1</format>
+    <format>24.09.1</format>
   </civix>
   <requires>
     <ext>org.civicrm.flexmailer</ext>
@@ -32,5 +32,8 @@
     <psr0 prefix="CRM_" path="."/>
     <psr4 prefix="Civi\" path="Civi"/>
   </classloader>
-  <upgrader>CRM_Reltoken_Upgrader</upgrader>
+  <upgrader>CiviMix\Schema\Reltoken\AutomaticUpgrader</upgrader>
+  <mixins>
+    <mixin>entity-types-php@2.0.0</mixin>
+  </mixins>
 </extension>
