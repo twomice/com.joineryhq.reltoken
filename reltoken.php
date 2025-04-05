@@ -92,9 +92,7 @@ function _reltoken_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
           $originalRowCid = $originalTokenProcessorContext[$originalRowKey];
           $relatedContactId = ($relatedContactIDsPerContact[$originalRowCid] ?? NULL);
           if ($relatedContactId) {
-            $relatedProcessorRowId = $relatedTokenProcessorCidToRowMap[$relatedContactId];
-            $renderedToken = $relatedTokenProcessor->getRow($relatedProcessorRowId)->render($baseToken);
-            $originalRow->tokens('related', $token, $renderedToken);
+            $originalRow->tokens('related', $token, $renderedToken[$relatedContactId]);
           }
         }
       }
