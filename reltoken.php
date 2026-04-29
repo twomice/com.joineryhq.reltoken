@@ -35,8 +35,8 @@ function _reltoken_register_tokens(\Civi\Token\Event\TokenRegisterEvent $e) {
   // 80 * ((25 * 2) + 10), or 4800 tokens.
   foreach ($hashedRelationshipTypes as $hash => $relationshipTypeDetails) {
     foreach ($contactTokens as $token => $label) {
-      if (strpos($token, '{contact') !== FALSE) {
-        $tokenBase = preg_replace('/^\{contact\.(\w+)\}$/', '$1', $token);
+      if (preg_match('/^\{contact\.(.+)\}$/', $token, $matches)) {
+        $tokenBase = $matches[1];
         // Must be in the form: $tokens['X']["X.whatever"] where X is not "contact".
         $e->entity('related')->register("{$tokenBase}___reltype_{$hash}", "Related ({$relationshipTypeDetails['directionLabel']})::{$label}");
       }
@@ -64,7 +64,7 @@ function _reltoken_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
         if (!$relatedContactIDs) {
           continue;
         }
-        $baseToken = preg_replace('/^(.+)___.+$/', '$1', $token);
+        $baseToken = preg_replace('/^(.+)___reltype_.+$/', '$1', $token);
 
         $useSmarty = (bool) (defined('CIVICRM_MAIL_SMARTY') && CIVICRM_MAIL_SMARTY);
         $relatedTokenProcessor = new \Civi\Token\TokenProcessor(\Civi::dispatcher(), [
