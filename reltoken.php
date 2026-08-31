@@ -81,7 +81,8 @@ function _reltoken_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
         // in the original token processor should get new values.
         $relatedTokenProcessorCidToRowMap = array_flip($relatedTokenProcessor->getContextValues('contactId'));
         $originalTokenProcessorContext = $e->getTokenProcessor()->getContextValues('contactId');
-        foreach ($relatedContactIDs as $rowId => $cid) {
+        foreach ($relatedContactIDs as $cid) {
+          $rowId = $relatedTokenProcessorCidToRowMap[$cid];
           $renderedToken[$cid] = $relatedTokenProcessor->getRow($rowId)->render($baseToken);
         }
 
