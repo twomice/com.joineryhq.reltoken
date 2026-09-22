@@ -107,21 +107,21 @@ function _reltoken_evaluate_tokens(\Civi\Token\Event\TokenValueEvent $e) {
 function _reltoken_get_hashed_relationship_types() {
   static $hashedRelationshipTypes;
   if (!isset($hashedRelationshipTypes)) {
-    $hashedRelationshipTypes = array();
+    $hashedRelationshipTypes = [];
     // Get the custom field ID of the field that specifies generating tokens.
     $tokenCustomFieldId = civicrm_api3('CustomField', 'getvalue', [
       'name' => 'display_reltokens',
       'return' => 'id',
     ]);
 
-    $result = civicrm_api3('relationshipType', 'get', array(
+    $result = civicrm_api3('relationshipType', 'get', [
       'is_active' => 1,
       'custom_' . $tokenCustomFieldId => 1,
-      'options' => array(
+      'options' => [
         'limit' => 0,
-      ),
-    ));
-    $unique_keys = array();
+      ],
+    ]);
+    $unique_keys = [];
     foreach ($result['values'] as $value) {
       $key = preg_replace('/\W/', '_', "{$value['name_a_b']}_{$value['name_b_a']}");
       if (in_array($key, $unique_keys)) {
@@ -129,7 +129,7 @@ function _reltoken_get_hashed_relationship_types() {
       }
       $unique_keys[] = $key;
 
-      $directions = array();
+      $directions = [];
       if ($value['name_a_b'] == $value['name_b_a']) {
         $directions[0] = $value['label_a_b'];
       }
@@ -139,10 +139,10 @@ function _reltoken_get_hashed_relationship_types() {
       }
       foreach ($directions as $direction => $directionLabel) {
         //'b_Benefits_Specialist_is_Benefits_Specialist' => 'Benefits Specialist',
-        $hashedRelationshipTypes["{$direction}_{$key}"] = array(
+        $hashedRelationshipTypes["{$direction}_{$key}"] = [
           'directionLabel' => $directionLabel,
           'relationship_type_id' => $value['id'],
-        );
+        ];
       }
     }
   }
@@ -182,7 +182,7 @@ function formatMessageTokens($messageTokens) {
 }
 
 function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
-  $relatedContactIDs = array();
+  $relatedContactIDs = [];
   //  dsm(func_get_args(), __FUNCTION__);
   // Example: first_name___reltype_b_Benefits_Specialist_is_Benefits_Specialist
   list($junk, $relationshipTypeHash) = explode('___reltype_', $token, 2);
@@ -223,16 +223,16 @@ function _reltoken_get_related_contact_ids_per_contact($contactIDs, $token) {
   }
   else {
     foreach ($contactIDs as $contactID) {
-      $result = civicrm_api3('relationship', 'get', array(
+      $result = civicrm_api3('relationship', 'get', [
         'sequential' => 1,
         'is_active' => 1,
         'relationship_type_id' => $relationshipTypeID,
         'contact_id_' . $direction => $contactID,
-        'options' => array(
+        'options' => [
           'sort' => "id DESC",
           'limit' => 1,
-        ),
-      ));
+        ],
+      ]);
       if (!empty($result['values'][0])) {
         $relatedContactIDs[$contactID] = $result['values'][0]['contact_id_' . $otherDirection];
       }
